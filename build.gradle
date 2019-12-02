@@ -5,12 +5,12 @@ buildscript {
 		maven { url "https://plugins.gradle.org/m2/" }
 	}
 	dependencies {
-		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+		classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
 		classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.1.0'
 	}
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'com.matthewprenger.cursegradle'
 apply plugin: 'maven'
 
@@ -27,13 +27,65 @@ compileJava {
 }
 
 minecraft {
-	version = "${mc_version}-${forge_version}"
-	runDir = "run"
-	mappings = "${mappings_version}"
+//	version = "${mc_version}-${forge_version}"
+//	runDir = "run"
+    mappings channel: 'snapshot', version: '20190719-1.14.3'
 
-	replace "0.0.0.forge", min_forge_version
-	replace "0.0.0.ftblib", project.version
-	replaceIn "${mod_reference}"
+	runs {
+		client {
+			workingDirectory project.file('run')
+
+			// Recommended logging data for a userdev environment
+			property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+			// Recommended logging level for the console
+			property 'forge.logging.console.level', 'debug'
+
+			mods {
+				ftblib {
+					source sourceSets.main
+				}
+			}
+		}
+
+		server {
+			workingDirectory project.file('run')
+
+			// Recommended logging data for a userdev environment
+			property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+			// Recommended logging level for the console
+			property 'forge.logging.console.level', 'debug'
+
+			mods {
+				ftblib {
+					source sourceSets.main
+				}
+			}
+		}
+
+		data {
+			workingDirectory project.file('run')
+
+			// Recommended logging data for a userdev environment
+			property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+			// Recommended logging level for the console
+			property 'forge.logging.console.level', 'debug'
+
+			args '--mod', 'ftblib', '--all', '--output', file('src/generated/resources/')
+
+			mods {
+				ftblib {
+					source sourceSets.main
+				}
+			}
+		}
+	}
+
+//	replace "0.0.0.forge", min_forge_version
+//	replace "0.0.0.ftblib", project.version
+//	replaceIn "${mod_reference}"
 }
 
 repositories {
@@ -42,6 +94,7 @@ repositories {
 
 dependencies {
 	compile "mezz.jei:jei_${mc_version}:${jei_version}"
+	minecraft 'net.minecraftforge:forge:${mc_version}-${forge_version}'
 }
 
 processResources {
